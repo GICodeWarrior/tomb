@@ -13,9 +13,12 @@ import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JPasswordField;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.UIManager;
@@ -32,7 +35,7 @@ public class PasswordPanel extends DetailPanel {
 	private JTextField txtName;
 	private JTextArea txtrDescription;
 	private JTextField txtUserName;
-	private JTextField txtPassword;
+	private JPasswordField txtPassword;
 
 	/**
 	 * Create the panel.
@@ -101,15 +104,27 @@ public class PasswordPanel extends DetailPanel {
 		btnCopyPassword.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				StringSelection selection = new StringSelection(txtPassword.getText());
+				StringSelection selection = new StringSelection(new String(txtPassword.getPassword()));
 				clipboard.setContents(selection, selection);
 			}
 		});
 		add(btnCopyPassword, "cell 1 6 1 2,aligny top");
 
-		txtPassword = new JTextField();
+		txtPassword = new JPasswordField();
 		txtPassword.setText(password.getPassword());
 		txtPassword.setFont(new Font("Monospaced", Font.PLAIN, 12));
+		final char DEFAULT_ECHO_CHAR = txtPassword.getEchoChar();
+		txtPassword.addFocusListener(new FocusListener() {
+			@Override
+			public void focusGained(FocusEvent e) {
+				txtPassword.setEchoChar((char) 0);
+			}
+
+			@Override
+			public void focusLost(FocusEvent e) {
+				txtPassword.setEchoChar(DEFAULT_ECHO_CHAR);
+			}
+		});
 		lblPassword.setLabelFor(txtPassword);
 		add(txtPassword, "cell 0 7 2 1");
 		assignListener(txtPassword);
@@ -120,6 +135,6 @@ public class PasswordPanel extends DetailPanel {
 		password.setName(txtName.getText());
 		password.setDescription(txtrDescription.getText());
 		password.setUsername(txtUserName.getText());
-		password.setPassword(txtPassword.getText());
+		password.setPassword(new String(txtPassword.getPassword()));
 	}
 }
