@@ -98,8 +98,7 @@ public class TombFile {
 			AEADBlockCipher cipher = new GCMBlockCipher(new AESEngine());
 			cipher.init(true, new AEADParameters(keySpec, 128, iv));
 
-			try (CipherOutputStream cipherStream = new CipherOutputStream(out, cipher);
-					DeflaterOutputStream deflaterStream = new DeflaterOutputStream(cipherStream)) {
+			try (DeflaterOutputStream deflaterStream = new DeflaterOutputStream(new CipherOutputStream(out, cipher))) {
 				deflaterStream.write(root.export(JSON_INDENT).getBytes("UTF-8"));
 			}
 		} catch (FileNotFoundException e) {
