@@ -17,7 +17,7 @@ import javax.swing.ImageIcon;
 public class TombIcons {
 	public static final String EDIT_COPY = "edit-copy";
 
-	private static final String ROOT = "/net/gicode/tomb/ui/icon/";
+	private static final String ROOT = "/" + TombIcons.class.getPackage().getName().replace('.', '/') + "/";
 	private static final int[] APP_ICON_SIZES = new int[] { 16, 20, 32, 40, 128 };
 
 	private static Map<String, ImageIcon> iconCache = new HashMap<String, ImageIcon>();
