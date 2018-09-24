@@ -9,19 +9,7 @@ package net.gicode.tomb.ui;
 import java.awt.Rectangle;
 import java.util.prefs.Preferences;
 
-import sun.util.logging.PlatformLogger;
-import sun.util.logging.PlatformLogger.Level;
-
-@SuppressWarnings("restriction")
 public class GUIPreferences {
-	static {
-		// Disable spurious warning from preferences due to static init of
-		// system prefs.
-		// http://bugs.java.com/bugdatabase/view_bug.do?bug_id=5097859
-		// http://bugs.java.com/bugdatabase/view_bug.do?bug_id=6809488
-		PlatformLogger.getLogger("java.util.prefs").setLevel(Level.SEVERE);
-	}
-
 	private Preferences preferences;
 
 	public GUIPreferences() {
