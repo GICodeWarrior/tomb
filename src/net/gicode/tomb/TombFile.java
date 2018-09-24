@@ -79,18 +79,7 @@ public class TombFile {
 			return;
 		}
 
-		OutputStream out;
-
-		try {
-			out = new FileOutputStream(location);
-		} catch (FileNotFoundException e) {
-			throw new TombException("Unable to open file " + location + " for writing.");
-		}
-
-		CipherOutputStream cipherStream = null;
-		DeflaterOutputStream deflaterStream = null;
-
-		try {
+		try (OutputStream out = new FileOutputStream(location)) {
 			out.write(MAGIC.getBytes("UTF-8"));
 			out.write(CONTAINER_VERSION);
 
@@ -109,36 +98,20 @@ public class TombFile {
 			AEADBlockCipher cipher = new GCMBlockCipher(new AESEngine());
 			cipher.init(true, new AEADParameters(keySpec, 128, iv));
 
-			cipherStream = new CipherOutputStream(out, cipher);
-			deflaterStream = new DeflaterOutputStream(cipherStream);
-
-			deflaterStream.write(root.export(JSON_INDENT).getBytes("UTF-8"));
-
-			deflaterStream.close();
+			try (CipherOutputStream cipherStream = new CipherOutputStream(out, cipher);
+					DeflaterOutputStream deflaterStream = new DeflaterOutputStream(cipherStream)) {
+				deflaterStream.write(root.export(JSON_INDENT).getBytes("UTF-8"));
+			}
+		} catch (FileNotFoundException e) {
+			throw new TombException("Unable to open file " + location + " for writing.");
 		} catch (IOException e) {
 			throw new TombException("Error writing file " + location + " (" + e.getMessage() + ").");
-		} finally {
-			IOUtils.closeQuietly(out);
-			IOUtils.closeQuietly(cipherStream);
-			IOUtils.closeQuietly(deflaterStream);
 		}
 	}
 
 	public void load(String location, String password) throws TombException {
-		InputStream in;
-		try {
-			in = new FileInputStream(location);
-		} catch (FileNotFoundException e) {
-			throw new TombException("File " + location + " not found.");
-		}
 
-		DataInputStream din = null;
-		CipherInputStream cipherStream = null;
-		ByteArrayInputStream bis = null;
-		InflaterInputStream inflaterStream = null;
-
-		try {
-			din = new DataInputStream(in);
+		try (InputStream in = new FileInputStream(location); DataInputStream din = new DataInputStream(in)) {
 
 			byte[] desiredMagic = MAGIC.getBytes("UTF-8");
 			byte[] magic = new byte[desiredMagic.length];
@@ -165,26 +138,21 @@ public class TombFile {
 			AEADBlockCipher cipher = new GCMBlockCipher(new AESEngine());
 			cipher.init(false, new AEADParameters(keySpec, 128, iv));
 
-			cipherStream = new CipherInputStream(din, cipher);
+			byte[] compressedData = null;
+			try (CipherInputStream cipherStream = new CipherInputStream(din, cipher)) {
+				// Data must be fully decrypted before auth check occurs D:
+				compressedData = IOUtils.toByteArray(cipherStream);
+			}
 
-			// Data must be fully decrypted before auth check occurs D:
-			byte[] compressedData = IOUtils.toByteArray(cipherStream);
-			cipherStream.close();
+			try (ByteArrayInputStream bis = new ByteArrayInputStream(compressedData);
+					InflaterInputStream inflaterStream = new InflaterInputStream(bis)) {
 
-			bis = new ByteArrayInputStream(compressedData);
-			inflaterStream = new InflaterInputStream(bis);
-
-			root = new RootEntry(new JSONObject(new JSONTokener(inflaterStream)));
-
-			inflaterStream.close();
+				root = new RootEntry(new JSONObject(new JSONTokener(inflaterStream)));
+			}
+		} catch (FileNotFoundException e) {
+			throw new TombException("File " + location + " not found.");
 		} catch (IOException e) {
 			throw new TombException("Error reading file " + location + " (" + e.getMessage() + ").");
-		} finally {
-			IOUtils.closeQuietly(in);
-			IOUtils.closeQuietly(din);
-			IOUtils.closeQuietly(cipherStream);
-			IOUtils.closeQuietly(bis);
-			IOUtils.closeQuietly(inflaterStream);
 		}
 	}
 
