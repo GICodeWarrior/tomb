@@ -19,6 +19,7 @@ import java.security.SecureRandom;
 import java.security.Security;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.InflaterInputStream;
 
@@ -39,7 +40,8 @@ import net.gicode.tomb.entry.FolderEntry;
 import net.gicode.tomb.entry.RootEntry;
 
 public class TombFile {
-	public static final String SOFTWARE_VERSION = "1.0.0";
+	public static final String SOFTWARE_VERSION = Objects
+			.toString(TombFile.class.getPackage().getImplementationVersion(), "dev");
 
 	private static final String MAGIC = ".TOMB\377";
 	private static final byte CONTAINER_VERSION = 2;
