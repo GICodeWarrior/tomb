@@ -103,7 +103,7 @@ public class PasswordGeneratorDialog extends JPanel {
 
 	public void showDialog() {
 		regenerate();
-		
+
 		dialog.setLocationRelativeTo(dialog.getOwner());
 		dialog.setVisible(true);
 	}

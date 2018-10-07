@@ -47,7 +47,7 @@ public class SetPasswordDialog extends JPanel {
 		lblConfirmPasswordLabel.setLabelFor(confirmPasswordField);
 		nestedPanel.add(confirmPasswordField);
 		confirmPasswordField.setColumns(10);
-		
+
 		addAncestorListener(new AncestorListener() {
 			@Override
 			public void ancestorAdded(AncestorEvent event) {

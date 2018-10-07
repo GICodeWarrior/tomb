@@ -263,6 +263,7 @@ public class TombGUI {
 					return;
 				}
 
+				// Listen for updates on the detail panel and update the name in the tree
 				ChangeListener listener = new ChangeListener() {
 					@Override
 					public void stateChanged(ChangeEvent event) {

@@ -139,7 +139,7 @@ public class TombFile {
 
 			byte[] compressedData = null;
 			try (CipherInputStream cipherStream = new CipherInputStream(din, cipher)) {
-				// Data must be fully decrypted before auth check occurs D:
+				// Data must be fully decrypted before GCM auth check occurs D:
 				compressedData = IOUtils.toByteArray(cipherStream);
 			}
 

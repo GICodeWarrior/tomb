@@ -32,7 +32,7 @@ public class UnlockDialog extends JPanel {
 		passwordField = new JPasswordField();
 		lblEnterPasswordFor.setLabelFor(passwordField);
 		add(passwordField, BorderLayout.SOUTH);
-		
+
 		addAncestorListener(new AncestorListener() {
 			@Override
 			public void ancestorAdded(AncestorEvent event) {
