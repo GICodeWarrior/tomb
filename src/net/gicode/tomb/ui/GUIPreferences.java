@@ -44,7 +44,7 @@ public class GUIPreferences {
 		return preferences.getInt("PASSWORD_GENERATOR_CHARSET", 0);
 	}
 
-	public void storePasswordGneratorCharset(int index) {
+	public void storePasswordGeneratorCharset(int index) {
 		preferences.putInt("PASSWORD_GENERATOR_CHARSET", index);
 	}
 

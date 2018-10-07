@@ -99,11 +99,11 @@ public class PasswordGeneratorDialog extends JPanel {
 		dialog = new JDialog(owner, "Password Generator", false);
 		dialog.setContentPane(this);
 		dialog.pack();
-
-		regenerate();
 	}
 
 	public void showDialog() {
+		regenerate();
+		
 		dialog.setLocationRelativeTo(dialog.getOwner());
 		dialog.setVisible(true);
 	}
@@ -119,7 +119,7 @@ public class PasswordGeneratorDialog extends JPanel {
 		int index = charsetCombo.getSelectedIndex();
 		ComboItem item = charsetCombo.getItemAt(index);
 
-		preferences.storePasswordGneratorCharset(index);
+		preferences.storePasswordGeneratorCharset(index);
 		preferences.storePasswordGeneratorLength(length);
 
 		for (JTextField passwordField : txtsPassword) {
