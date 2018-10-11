@@ -16,6 +16,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.time.Instant;
+import java.util.regex.Matcher;
 
 import javax.swing.Box;
 import javax.swing.DropMode;
@@ -37,6 +38,8 @@ import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.event.TreeModelEvent;
+import javax.swing.event.TreeModelListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -55,6 +58,8 @@ import net.gicode.tomb.ui.tree.TombTreeCellRenderer;
 import net.gicode.tomb.ui.tree.TombTreeModel;
 
 public class TombGUI {
+	private static final String WINDOW_TITLE = "%s - Tomb Password Manager";
+
 	private JFrame tombFrame;
 
 	private JTree tree;
@@ -67,6 +72,7 @@ public class TombGUI {
 	private Instant lastSaved = Instant.now();
 	private String location = null;
 	private String password = null;
+	private boolean titleDirty = false;
 
 	private int newFolderId = 1;
 	private int newPasswordId = 1;
@@ -93,7 +99,6 @@ public class TombGUI {
 
 	private void initialize() {
 		tombFrame = new JFrame();
-		tombFrame.setTitle("Tomb Password Manager");
 		tombFrame.setBounds(preferences.readWindowBounds());
 		tombFrame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		tombFrame.setIconImages(TombIcons.getApplicationIcons());
@@ -124,13 +129,17 @@ public class TombGUI {
 						return;
 					}
 				}
+
 				tombFile = new TombFile();
 				location = null;
 				password = null;
 				lastSaved = Instant.now();
+
 				treeModel = new TombTreeModel(tombFile.getRoot());
 				tree.setModel(treeModel);
 				tree.setTransferHandler(new EntryTransferHandler(treeModel));
+
+				updateTitle();
 			}
 		});
 		mnFile.add(mntmNew);
@@ -268,20 +277,19 @@ public class TombGUI {
 					@Override
 					public void stateChanged(ChangeEvent event) {
 						treeModel.valueForPathChanged(tree.getSelectionPath(), event.getSource());
+						updateDirty();
 					}
 				};
 				contentScrollPane.setViewportView(DetailPanel.getPanelForEntry((Entry) node, listener));
 			}
 		});
-		treeModel = new TombTreeModel(tombFile.getRoot());
-		tree.setModel(treeModel);
+		initializeTreeModel();
 		tree.setCellRenderer(new TombTreeCellRenderer());
 		tree.setRootVisible(false);
 		tree.setShowsRootHandles(true);
 		tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 		tree.setDragEnabled(true);
 		tree.setDropMode(DropMode.INSERT);
-		tree.setTransferHandler(new EntryTransferHandler(treeModel));
 		scrollPane.setViewportView(tree);
 
 		JPanel actionPanel = new JPanel();
@@ -296,6 +304,7 @@ public class TombGUI {
 				path = treeModel.addEntry(path, entry, -1);
 				tree.setSelectionPath(path);
 				tree.scrollPathToVisible(path);
+				updateDirty();
 			}
 		});
 		actionPanel.add(btnAddFolder);
@@ -309,6 +318,7 @@ public class TombGUI {
 				path = treeModel.addEntry(path, entry, -1);
 				tree.setSelectionPath(path);
 				tree.scrollPathToVisible(path);
+				updateDirty();
 			}
 		});
 		actionPanel.add(btnAddPassword);
@@ -339,6 +349,7 @@ public class TombGUI {
 				if (response == JOptionPane.OK_OPTION) {
 					treeModel.deleteEntry(path);
 				}
+				updateDirty();
 			}
 		});
 		actionPanel.add(btnDelete);
@@ -353,26 +364,30 @@ public class TombGUI {
 		if (path != null) {
 			chooser.setCurrentDirectory(new File(path));
 		}
+
+		updateTitle();
 	}
 
 	private void loadTombFile(String path) {
 		UnlockDialog unlockDialog = new UnlockDialog(path);
 		String unlockPassword = unlockDialog.getPassword(tombFrame);
-		if (unlockPassword != null) {
-			try {
-				tombFile.load(path, unlockPassword);
-			} catch (TombException e) {
-				JOptionPane.showMessageDialog(tombFrame, e.getMessage(), "Unable to open Tomb",
-						JOptionPane.ERROR_MESSAGE);
-				return;
-			}
-			location = path;
-			password = unlockPassword;
-			lastSaved = Instant.now();
-			treeModel = new TombTreeModel(tombFile.getRoot());
-			tree.setModel(treeModel);
-			tree.setTransferHandler(new EntryTransferHandler(treeModel));
+		if (unlockPassword == null) {
+			return;
 		}
+
+		try {
+			tombFile.load(path, unlockPassword);
+		} catch (TombException e) {
+			JOptionPane.showMessageDialog(tombFrame, e.getMessage(), "Unable to open Tomb", JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+
+		location = path;
+		password = unlockPassword;
+		lastSaved = Instant.now();
+
+		initializeTreeModel();
+		updateTitle();
 	}
 
 	private boolean saveTomb(boolean saveAs) {
@@ -402,8 +417,11 @@ public class TombGUI {
 			JOptionPane.showMessageDialog(tombFrame, e.getMessage(), "Error Saving File", JOptionPane.ERROR_MESSAGE);
 			return false;
 		}
+
 		location = saveLocation;
 		lastSaved = Instant.now();
+		updateTitle();
+
 		return true;
 	}
 
@@ -421,5 +439,60 @@ public class TombGUI {
 		preferences.storeLastFileChooserPath(chooser.getCurrentDirectory().getPath());
 
 		System.exit(0);
+	}
+
+	private void updateTitle() {
+		updateTitle(true);
+	}
+
+	private void updateDirty() {
+		updateTitle(false);
+	}
+
+	private void updateTitle(boolean force) {
+		if (!force && titleDirty) {
+			return;
+		}
+
+		String fileName = "New Tomb";
+		if (location != null) {
+			fileName = location.replaceFirst("^.*" + Matcher.quoteReplacement(File.separator), "");
+		}
+
+		titleDirty = false;
+		if (tombFile.getUpdated().isAfter(lastSaved)) {
+			fileName = "*" + fileName;
+			titleDirty = true;
+		}
+
+		tombFrame.setTitle(String.format(WINDOW_TITLE, fileName));
+	}
+
+	private void initializeTreeModel() {
+		treeModel = new TombTreeModel(tombFile.getRoot());
+		treeModel.addTreeModelListener(new TreeModelListener() {
+			@Override
+			public void treeNodesChanged(TreeModelEvent e) {
+				updateDirty();
+			}
+
+			@Override
+			public void treeNodesInserted(TreeModelEvent e) {
+				updateDirty();
+			}
+
+			@Override
+			public void treeNodesRemoved(TreeModelEvent e) {
+				updateDirty();
+			}
+
+			@Override
+			public void treeStructureChanged(TreeModelEvent e) {
+				updateDirty();
+			}
+		});
+
+		tree.setModel(treeModel);
+		tree.setTransferHandler(new EntryTransferHandler(treeModel));
 	}
 }
