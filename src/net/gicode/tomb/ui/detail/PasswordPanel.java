@@ -10,20 +10,26 @@ import java.awt.Font;
 import java.awt.Insets;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.StringSelection;
+import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.io.IOException;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.Timer;
 import javax.swing.UIManager;
 
 import net.gicode.tomb.entry.PasswordEntry;
+import net.gicode.tomb.ui.TombGUI;
 import net.gicode.tomb.ui.icon.TombIcons;
 import net.miginfocom.swing.MigLayout;
 
@@ -104,8 +110,27 @@ public class PasswordPanel extends DetailPanel {
 		btnCopyPassword.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				StringSelection selection = new StringSelection(new String(txtPassword.getPassword()));
+				String password = new String(txtPassword.getPassword());
+				StringSelection selection = new StringSelection(password);
 				clipboard.setContents(selection, selection);
+
+				(new Timer(TombGUI.CLIPBOARD_ERASE_PASSWORD_TIMEOUT, new ActionListener() {
+					@Override
+					public void actionPerformed(ActionEvent event) {
+						Transferable clipboardContents = clipboard.getContents(null);
+						try {
+							if ((clipboardContents != null)
+									&& clipboardContents.isDataFlavorSupported(DataFlavor.stringFlavor)
+									&& password.equals(clipboardContents.getTransferData(DataFlavor.stringFlavor))) {
+								StringSelection selection = new StringSelection("");
+								clipboard.setContents(selection, selection);
+							}
+						} catch (UnsupportedFlavorException | IOException e) {
+							System.err.println("TombGUI: Error clearing password from clipboard.");
+							e.printStackTrace();
+						}
+					}
+				})).start();
 			}
 		});
 		add(btnCopyPassword, "cell 1 6 1 2,aligny top");

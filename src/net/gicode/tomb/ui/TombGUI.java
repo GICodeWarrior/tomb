@@ -58,6 +58,8 @@ import net.gicode.tomb.ui.tree.TombTreeCellRenderer;
 import net.gicode.tomb.ui.tree.TombTreeModel;
 
 public class TombGUI {
+	public static final int CLIPBOARD_ERASE_PASSWORD_TIMEOUT = 120 * 1000; // milliseconds
+
 	private static final String WINDOW_TITLE = "%s - Tomb Password Manager";
 
 	private JFrame tombFrame;
