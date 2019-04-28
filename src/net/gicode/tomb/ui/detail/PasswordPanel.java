@@ -35,6 +35,7 @@ import net.miginfocom.swing.MigLayout;
 
 @SuppressWarnings("serial")
 public class PasswordPanel extends DetailPanel {
+	private static Timer clipboardEraseTimer = null; // Singleton
 
 	private PasswordEntry password;
 
@@ -112,9 +113,14 @@ public class PasswordPanel extends DetailPanel {
 			public void actionPerformed(ActionEvent event) {
 				String password = new String(txtPassword.getPassword());
 				StringSelection selection = new StringSelection(password);
+
 				clipboard.setContents(selection, selection);
 
-				(new Timer(TombGUI.CLIPBOARD_ERASE_PASSWORD_TIMEOUT, new ActionListener() {
+				if (clipboardEraseTimer != null) {
+					clipboardEraseTimer.stop();
+				}
+
+				clipboardEraseTimer = new Timer(TombGUI.CLIPBOARD_ERASE_PASSWORD_TIMEOUT, new ActionListener() {
 					@Override
 					public void actionPerformed(ActionEvent event) {
 						Transferable clipboardContents = clipboard.getContents(null);
@@ -129,8 +135,12 @@ public class PasswordPanel extends DetailPanel {
 							System.err.println("TombGUI: Error clearing password from clipboard.");
 							e.printStackTrace();
 						}
+
+						// Clear the reference to this Timer so it can be GC'd
+						clipboardEraseTimer = null;
 					}
-				})).start();
+				});
+				clipboardEraseTimer.start();
 			}
 		});
 		add(btnCopyPassword, "cell 1 6 1 2,aligny top");
