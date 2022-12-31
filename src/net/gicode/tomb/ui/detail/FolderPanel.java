@@ -16,7 +16,6 @@ import javax.swing.UIManager;
 import net.gicode.tomb.entry.FolderEntry;
 import net.miginfocom.swing.MigLayout;
 
-@SuppressWarnings("serial")
 public class FolderPanel extends DetailPanel {
 
 	private FolderEntry folder;

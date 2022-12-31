@@ -22,7 +22,6 @@ import net.gicode.tomb.entry.Entry;
 import net.gicode.tomb.entry.FolderEntry;
 import net.gicode.tomb.entry.PasswordEntry;
 
-@SuppressWarnings("serial")
 public abstract class DetailPanel extends JPanel implements Scrollable {
 
 	private Entry entry;

@@ -6,7 +6,6 @@
  */
 package net.gicode.tomb;
 
-@SuppressWarnings("serial")
 public class TombException extends Exception {
 	public TombException(String message) {
 		super(message);

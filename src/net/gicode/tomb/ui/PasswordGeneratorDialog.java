@@ -26,7 +26,6 @@ import net.gicode.tomb.RandomPassword;
 import net.gicode.tomb.ui.icon.TombIcons;
 import net.miginfocom.swing.MigLayout;
 
-@SuppressWarnings("serial")
 public class PasswordGeneratorDialog extends JPanel {
 	private static final int FIELDS = 10;
 	private static final int COLUMNS = 2;

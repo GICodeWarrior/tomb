@@ -18,7 +18,6 @@ import javax.swing.tree.TreePath;
 import net.gicode.tomb.entry.Entry;
 import net.gicode.tomb.entry.FolderEntry;
 
-@SuppressWarnings("serial")
 public class EntryTransferHandler extends TransferHandler {
 	private TombTreeModel treeModel;
 

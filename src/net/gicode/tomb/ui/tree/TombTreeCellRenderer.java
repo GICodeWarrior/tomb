@@ -13,7 +13,6 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 
 import net.gicode.tomb.entry.Entry;
 
-@SuppressWarnings("serial")
 public class TombTreeCellRenderer extends DefaultTreeCellRenderer {
 
 	@Override

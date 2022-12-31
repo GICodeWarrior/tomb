@@ -16,7 +16,6 @@ import javax.swing.JPasswordField;
 import javax.swing.event.AncestorEvent;
 import javax.swing.event.AncestorListener;
 
-@SuppressWarnings("serial")
 public class UnlockDialog extends JPanel {
 	private JPasswordField passwordField;
 

@@ -33,7 +33,6 @@ import net.gicode.tomb.ui.TombGUI;
 import net.gicode.tomb.ui.icon.TombIcons;
 import net.miginfocom.swing.MigLayout;
 
-@SuppressWarnings("serial")
 public class PasswordPanel extends DetailPanel {
 	private static Timer clipboardEraseTimer = null; // Singleton
 
