@@ -11,12 +11,14 @@ This is the Tomb Password Manager.
 
 ## Tomb Format
 
-1. 6 bytes - magic (.TOMB\377)
-2. 1 byte - format version (2)
-3. 16 bytes - Bcrypt salt
-4. 1 byte - Bcrypt cost
-5. 12 bytes - AES-GCM IV
-6. n bytes - AES-GCM encrypted, deflated, JSON
+1. 6 bytes - magic (.TOMB + 0xFF00)
+2. 1 byte - format version (3)
+3. 16 bytes - Argon2id salt
+4. 4 bytes - Argon2id memory (in kilobytes)
+5. 4 bytes - Argon2id iterations
+6. 4 bytes - Argon2id parallelism
+7. 12 bytes - AES-GCM IV
+8. n bytes - AES-GCM encrypted, deflated, JSON
 
 ## License
 
