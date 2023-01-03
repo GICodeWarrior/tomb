@@ -46,7 +46,6 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
-import net.gicode.tomb.TombException;
 import net.gicode.tomb.TombFile;
 import net.gicode.tomb.entry.Entry;
 import net.gicode.tomb.entry.FolderEntry;
@@ -377,19 +376,17 @@ public class TombGUI {
 			return;
 		}
 
-		try {
-			tombFile.load(path, unlockPassword);
-		} catch (TombException e) {
-			JOptionPane.showMessageDialog(tombFrame, e.getMessage(), "Unable to open Tomb", JOptionPane.ERROR_MESSAGE);
-			return;
+		RunWithProgressDialog dialog = new RunWithProgressDialog(tombFrame, "Unable to open Tomb");
+		boolean success = dialog.execute(() -> tombFile.load(path, unlockPassword));
+
+		if (success) {
+			location = path;
+			password = unlockPassword;
+			lastSaved = Instant.now();
+
+			initializeTreeModel();
+			updateTitle();
 		}
-
-		location = path;
-		password = unlockPassword;
-		lastSaved = Instant.now();
-
-		initializeTreeModel();
-		updateTitle();
 	}
 
 	private boolean saveTomb(boolean saveAs) {
@@ -412,19 +409,19 @@ public class TombGUI {
 			}
 			saveLocation = chooser.getSelectedFile().getPath();
 		}
+		// Necessary for reference in lambda
+		final String finalSaveLocation = saveLocation;
 
-		try {
-			tombFile.save(saveLocation, password);
-		} catch (TombException e) {
-			JOptionPane.showMessageDialog(tombFrame, e.getMessage(), "Error Saving File", JOptionPane.ERROR_MESSAGE);
-			return false;
+		RunWithProgressDialog dialog = new RunWithProgressDialog(tombFrame, "Error Saving File");
+		boolean success = dialog.execute(() -> tombFile.save(finalSaveLocation, password));
+
+		if (success) {
+			location = saveLocation;
+			lastSaved = Instant.now();
+			updateTitle();
 		}
 
-		location = saveLocation;
-		lastSaved = Instant.now();
-		updateTitle();
-
-		return true;
+		return success;
 	}
 
 	private void quit() {
