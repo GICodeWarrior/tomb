@@ -55,6 +55,12 @@ public class FolderPanel extends DetailPanel {
 	}
 
 	@Override
+	public void focusAsNew() {
+		txtName.requestFocus();
+		txtName.selectAll();
+	}
+
+	@Override
 	protected void updateModel() {
 		folder.setName(txtName.getText());
 		folder.setDescription(txtrDescription.getText());

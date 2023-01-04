@@ -306,6 +306,11 @@ public class TombGUI {
 				tree.setSelectionPath(path);
 				tree.scrollPathToVisible(path);
 				updateDirty();
+
+				Component view = contentScrollPane.getViewport().getView();
+				if (view instanceof DetailPanel) {
+					((DetailPanel) view).focusAsNew();
+				}
 			}
 		});
 		actionPanel.add(btnAddFolder);
@@ -320,6 +325,11 @@ public class TombGUI {
 				tree.setSelectionPath(path);
 				tree.scrollPathToVisible(path);
 				updateDirty();
+
+				Component view = contentScrollPane.getViewport().getView();
+				if (view instanceof DetailPanel) {
+					((DetailPanel) view).focusAsNew();
+				}
 			}
 		});
 		actionPanel.add(btnAddPassword);

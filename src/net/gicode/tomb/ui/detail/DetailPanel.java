@@ -46,6 +46,8 @@ public abstract class DetailPanel extends JPanel implements Scrollable {
 		return panel;
 	}
 
+	public abstract void focusAsNew();
+
 	protected void assignListener(JTextComponent component) {
 		component.getDocument().addDocumentListener(listener);
 	}

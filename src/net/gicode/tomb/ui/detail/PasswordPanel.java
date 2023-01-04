@@ -166,6 +166,12 @@ public class PasswordPanel extends DetailPanel {
 	}
 
 	@Override
+	public void focusAsNew() {
+		txtName.requestFocus();
+		txtName.selectAll();
+	}
+
+	@Override
 	protected void updateModel() {
 		password.setName(txtName.getText());
 		password.setDescription(txtrDescription.getText());
