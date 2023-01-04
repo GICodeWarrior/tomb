@@ -29,6 +29,7 @@ import javax.swing.Timer;
 import javax.swing.UIManager;
 
 import net.gicode.tomb.entry.PasswordEntry;
+import net.gicode.tomb.ui.TombFont;
 import net.gicode.tomb.ui.TombGUI;
 import net.gicode.tomb.ui.icon.TombIcons;
 import net.miginfocom.swing.MigLayout;
@@ -146,7 +147,7 @@ public class PasswordPanel extends DetailPanel {
 
 		txtPassword = new JPasswordField();
 		txtPassword.setText(password.getPassword());
-		txtPassword.setFont(new Font("Monospaced", Font.PLAIN, 12));
+		txtPassword.setFont(TombFont.getMonospaced(Font.PLAIN, 12));
 		final char DEFAULT_ECHO_CHAR = txtPassword.getEchoChar();
 		txtPassword.addFocusListener(new FocusListener() {
 			@Override
