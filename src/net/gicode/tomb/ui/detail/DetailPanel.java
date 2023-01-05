@@ -6,12 +6,16 @@
  */
 package net.gicode.tomb.ui.detail;
 
-import java.awt.Adjustable;
 import java.awt.Dimension;
 import java.awt.Rectangle;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 
 import javax.swing.JPanel;
 import javax.swing.Scrollable;
+import javax.swing.SwingConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
@@ -23,6 +27,11 @@ import net.gicode.tomb.entry.FolderEntry;
 import net.gicode.tomb.entry.PasswordEntry;
 
 public abstract class DetailPanel extends JPanel implements Scrollable {
+
+	private static final DateTimeFormatter dateFormatter = DateTimeFormatter.ISO_LOCAL_DATE
+			.withZone(ZoneId.systemDefault());
+	private static final DateTimeFormatter timeFormatter = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT)
+			.withZone(ZoneId.systemDefault());
 
 	private Entry entry;
 	private ChangeListener observer;
@@ -46,11 +55,15 @@ public abstract class DetailPanel extends JPanel implements Scrollable {
 		return panel;
 	}
 
-	public abstract void focusAsNew();
-
 	protected void assignListener(JTextComponent component) {
 		component.getDocument().addDocumentListener(listener);
 	}
+
+	protected String formatInstant(Instant dateTime) {
+		return dateFormatter.format(dateTime) + " " + timeFormatter.format(dateTime);
+	}
+
+	public abstract void focusAsNew();
 
 	protected abstract void updateModel();
 
@@ -70,7 +83,7 @@ public abstract class DetailPanel extends JPanel implements Scrollable {
 
 	@Override
 	public int getScrollableBlockIncrement(Rectangle visibleRect, int orientation, int direction) {
-		return orientation == Adjustable.VERTICAL ? visibleRect.height : visibleRect.width;
+		return orientation == SwingConstants.VERTICAL ? visibleRect.height : visibleRect.width;
 	}
 
 	@Override
@@ -81,6 +94,23 @@ public abstract class DetailPanel extends JPanel implements Scrollable {
 	@Override
 	public boolean getScrollableTracksViewportHeight() {
 		return false;
+	}
+
+	@Override
+	public Dimension getPreferredSize() {
+		Dimension size = super.getPreferredSize();
+		int parentHeight = 0;
+		if (getParent() != null) {
+			parentHeight = getParent().getSize().height;
+		}
+
+		if (parentHeight > size.height) {
+			// Occupy at least the visible space, so components can be aligned to the bottom
+			// (e.g. the created/updated info)
+			size.height = parentHeight;
+		}
+
+		return size;
 	}
 
 	private class UpdateListener implements DocumentListener {

@@ -7,7 +7,6 @@
 package net.gicode.tomb.ui.detail;
 
 import java.awt.Insets;
-
 import javax.swing.JLabel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
@@ -23,12 +22,12 @@ public class FolderPanel extends DetailPanel {
 	private JTextField txtName;
 	private JTextArea txtrDescription;
 
-	/**
-	 * Create the panel.
-	 */
+	private JTextField txtCreated;
+	private JTextField txtUpdated;
+
 	protected FolderPanel(FolderEntry folder) {
 		this.folder = folder;
-		setLayout(new MigLayout("", "[grow,shrink 99,fill]", "[][][][100px]"));
+		setLayout(new MigLayout("", "[grow,shrink 99,fill]", "[][][][100px]push[][][][]"));
 
 		JLabel lblName = new JLabel("Name");
 		add(lblName, "cell 0 0");
@@ -52,6 +51,24 @@ public class FolderPanel extends DetailPanel {
 		lblDescription.setLabelFor(txtrDescription);
 		assignListener(txtrDescription);
 		add(txtrDescription, "cell 0 3,wmin 10,growy");
+
+		JLabel lblCreated = new JLabel("Created");
+		add(lblCreated, "cell 0 4");
+
+		txtCreated = new JTextField();
+		txtCreated.setEditable(false);
+		txtCreated.setText(formatInstant(folder.getCreated()));
+		lblCreated.setLabelFor(txtCreated);
+		add(txtCreated, "cell 0 5");
+
+		JLabel lblUpdated = new JLabel("Updated");
+		add(lblUpdated, "cell 0 6");
+
+		txtUpdated = new JTextField();
+		txtUpdated.setEditable(false);
+		txtUpdated.setText(formatInstant(folder.getUpdated()));
+		lblUpdated.setLabelFor(txtUpdated);
+		add(txtUpdated, "cell 0 7");
 	}
 
 	@Override
@@ -64,5 +81,8 @@ public class FolderPanel extends DetailPanel {
 	protected void updateModel() {
 		folder.setName(txtName.getText());
 		folder.setDescription(txtrDescription.getText());
+
+		txtCreated.setText(formatInstant(folder.getCreated()));
+		txtUpdated.setText(formatInstant(folder.getUpdated()));
 	}
 }

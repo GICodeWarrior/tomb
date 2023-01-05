@@ -44,12 +44,15 @@ public class PasswordPanel extends DetailPanel {
 	private JTextField txtUserName;
 	private JPasswordField txtPassword;
 
+	private JTextField txtCreated;
+	private JTextField txtUpdated;
+
 	/**
 	 * Create the panel.
 	 */
 	protected PasswordPanel(PasswordEntry password) {
 		this.password = password;
-		setLayout(new MigLayout("", "[grow,shrink 1,fill][]", "[][][][50px][][][][]"));
+		setLayout(new MigLayout("", "[grow,shrink 1,fill][]", "[][][][50px][][][][]push[][][][]"));
 
 		JLabel lblName = new JLabel("Name");
 		add(lblName, "cell 0 0");
@@ -163,6 +166,24 @@ public class PasswordPanel extends DetailPanel {
 		lblPassword.setLabelFor(txtPassword);
 		add(txtPassword, "cell 0 7 2 1");
 		assignListener(txtPassword);
+
+		JLabel lblCreated = new JLabel("Created");
+		add(lblCreated, "cell 0 8 2 1");
+
+		txtCreated = new JTextField();
+		txtCreated.setEditable(false);
+		txtCreated.setText(formatInstant(password.getCreated()));
+		lblCreated.setLabelFor(txtCreated);
+		add(txtCreated, "cell 0 9 2 1");
+
+		JLabel lblUpdated = new JLabel("Updated");
+		add(lblUpdated, "cell 0 10 2 1");
+
+		txtUpdated = new JTextField();
+		txtUpdated.setEditable(false);
+		txtUpdated.setText(formatInstant(password.getUpdated()));
+		lblUpdated.setLabelFor(txtUpdated);
+		add(txtUpdated, "cell 0 11 2 1");
 	}
 
 	@Override
@@ -177,5 +198,8 @@ public class PasswordPanel extends DetailPanel {
 		password.setDescription(txtrDescription.getText());
 		password.setUsername(txtUserName.getText());
 		password.setPassword(new String(txtPassword.getPassword()));
+
+		txtCreated.setText(formatInstant(password.getCreated()));
+		txtUpdated.setText(formatInstant(password.getUpdated()));
 	}
 }
