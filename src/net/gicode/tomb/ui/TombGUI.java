@@ -30,6 +30,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTree;
@@ -282,6 +283,10 @@ public class TombGUI {
 					}
 				};
 				contentScrollPane.setViewportView(DetailPanel.getPanelForEntry((Entry) node, listener));
+
+				// Reset scrollbar to the top, after layout has reflowed
+				JScrollBar scrollBar = contentScrollPane.getVerticalScrollBar();
+				EventQueue.invokeLater(() -> scrollBar.setValue(scrollBar.getMinimum()));
 			}
 		});
 		initializeTreeModel();
